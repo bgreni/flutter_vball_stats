@@ -14,9 +14,9 @@ class Player {
   }
 
 
-  Map<String,dynamic> listToJson(List<Player> playerList){
-    final m = new Map<String,dynamic>();
-    playerList.forEach((player) {m[player.name] = player.toJson(); });
+  List<Map<String,dynamic>> listToJson(List<Player> playerList){
+    final m = new List<Map<String,dynamic>>();
+    playerList.forEach((player) => {m.add(player.toJson()) });
     return m;
   } 
 

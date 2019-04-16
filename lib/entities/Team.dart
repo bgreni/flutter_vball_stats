@@ -2,6 +2,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'Coach.dart';
 import 'Player.dart';
+import 'dart:convert';
 
 
 part 'Team.g.dart';

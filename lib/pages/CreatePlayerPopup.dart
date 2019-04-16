@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:vball_stats/entities/Player.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:vball_stats/entities/Team.dart';
+import 'package:vball_stats/globals.dart' as globals;
 
 
 
 class CreatePlayerPopup extends StatefulWidget{
+
   @override
   State<StatefulWidget> createState() => _CreatePlayerPopupState();
 }
@@ -90,11 +95,13 @@ String _playerPosition;
   }
 
   void _validateAndSave(){
-    // TODO: add player to DB
     final _form = _formKey.currentState;
     if (_form.validate()){
       _form.save();
-
+      Player newPlayer = new Player(name: _playerName,playerPosition: _playerPosition);
+      globals.currentTeam.addPlayer(newPlayer);
+      Firestore.instance.collection("Teams").document(globals.currentTeam.teamID).updateData(globals.currentTeam.toJson());
+      Navigator.pop(context);
     }
   }
 }

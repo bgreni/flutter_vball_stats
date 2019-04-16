@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
 import 'PlayerStatsPage.dart';
+import 'package:vball_stats/entities/Team.dart';
+import 'package:vball_stats/globals.dart' as globals;
 
 /// Root page for all team related activities
 /// shown after the users chooses a team
@@ -11,9 +13,11 @@ class TeamRoot extends StatefulWidget {
   // will likely be needed later
   final String userId;
   // passed in from the team select page
-  final String team;
+  final Team team;
 
-  TeamRoot({this.auth, this.userId, this.team});
+  TeamRoot({this.auth, this.userId, this.team}){
+    globals.currentTeam = this.team;
+  }
 
   @override
   State<StatefulWidget> createState() => _TeamRootState();
@@ -49,7 +53,7 @@ class _TeamRootState extends State<TeamRoot> {
     // switch statement to choose with page body we need
     switch(pageState){
       case PageState.PLAYER_STATS:
-        return PlayerStatsPage();
+        return PlayerStatsPage(team: widget.team);
       case PageState.NEW_GAME:
         return _showNewGame();
       default:

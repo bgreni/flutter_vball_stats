@@ -11,12 +11,12 @@ Team _$TeamFromJson(Map<String, dynamic> json) {
       teamName: json['teamName'] as String,
       headCoach: json['headCoach'] == null
           ? null
-          : Coach.fromJson(json['headCoach'] as Map<String, dynamic>))
-    ..playerList = (json['playerList'] as List)
+          : Coach.fromJson(Map<String,dynamic>.from(json['headCoach']) as Map<String, dynamic>))
+    ..playerList = (List<Map<String,dynamic>>.from(json['playerList']) as List<Map<String,dynamic>>)
         ?.map((e) =>
-            e == null ? null : Player.fromJson(e as Map<String, dynamic>))
+            e == null ? null : Player.fromJson(e as Map<String,dynamic>))
         ?.toList()
-    ..assistantCoachList = (json['assistantCoachList'] as List)
+    ..assistantCoachList = (List<Map<String,dynamic>>.from(json['assistantCoachList']) as List)
         ?.map(
             (e) => e == null ? null : Coach.fromJson(e as Map<String, dynamic>))
         ?.toList()

@@ -3,12 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/pages/CreateTeamPage.dart';
 import 'package:vball_stats/pages/teamRoot.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/globals.dart' as globals;
 import 'dart:convert';
 import 'package:vball_stats/entities/Coach.dart';
 import 'package:vball_stats/entities/Player.dart';
+import 'package:vball_stats/entities/Team.dart';
 
 class TeamSelect extends StatefulWidget{
   final String userID;
@@ -74,7 +73,7 @@ class _TeamSelectState extends State<TeamSelect>{
               child: new Text(document["teamName"]),
               onPressed: (){
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TeamRoot(team: document["teamName"])));
+                MaterialPageRoute(builder: (context) => TeamRoot(team: Team.fromJson(document.data))));
               },
             )
             );
@@ -122,7 +121,7 @@ class _TeamSelectState extends State<TeamSelect>{
               child: new Text(document["teamName"]),
               onPressed: (){
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TeamRoot(team: document["teamName"])));
+                MaterialPageRoute(builder: (context) => TeamRoot(team: Team.fromJson(Map<String,dynamic>.from(document.data)))));
               },
             )
             );
