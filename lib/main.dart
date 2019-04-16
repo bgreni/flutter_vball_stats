@@ -1,42 +1,26 @@
 import 'package:flutter/material.dart';
+import "package:vball_stats/services/authentication.dart";
+import 'package:vball_stats/pages/root_page.dart';
 
-void main() => runApp(GettingStartedApp());
+/* TODO: dependencies to add to IOS version
+    firebase auth
+    firestore*/
 
-class GettingStartedApp extends StatelessWidget{
+void main() => runApp(VballStatsApp());
+
+class VballStatsApp extends StatelessWidget {
   @override
-    Widget build(BuildContext context) {
-      return new MaterialApp(
-        title: "Getting Started",
-        home: new Scaffold(
-          appBar: new AppBar(
-            title: new Text("My App")
-          ),
-          body: new HomeWidget(),
-        )
-      );
-    }
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+        title: 'Vball Stats App',
+        debugShowCheckedModeBanner: false,
+        theme: new ThemeData(
+          // main color theme for the app
+          primarySwatch: Colors.blue,
+        ),
+        // set root authorization page
+        home: new RootPage(auth: new Auth()));
+  }
 }
 
-class HomeWidget extends StatelessWidget{
-    @override
-      Widget build(BuildContext context) {
-        return new ListView.builder(
-          itemCount: 20,
-          itemBuilder: (context,rowNumber){
-            return new Container(
-              padding: new EdgeInsets.all(16.0),
-              child:   new Column(
-              children: <Widget>[
-                new Image.network("https://www.oliosmarket.com/uploads/5/0/8/4/50849417/s861601039261965101_p9_i1_w2560.jpeg"),
-                new Text("BUTTER BOIS",
-                  style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 19.0),),
-                new Divider(color: Colors.green),
-              ],
-            )
-            );
-          }
-        );
-              
-      }
-}
-
+    
