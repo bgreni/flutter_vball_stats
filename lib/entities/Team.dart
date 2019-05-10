@@ -5,8 +5,6 @@ import 'Player.dart';
 import 'dart:convert';
 
 
-part 'Team.g.dart';
-
 @JsonSerializable()
 
 class Team {
@@ -30,9 +28,33 @@ class Team {
     this.assistantCoachList.add(assistantCoach);
   }
 
-  factory Team.fromJson(Map<String,dynamic> json) => _$TeamFromJson(json);
+  
 
-  Map<String,dynamic> toJson() => _$TeamToJson(this);
+
+
+  Team fromJson(Map<String, dynamic> json) {
+  Team team = Team(
+      teamName: json['teamName'] as String,
+      headCoach: json['headCoach'] == null
+          ? null
+          : Coach().fromJson(Map<String,dynamic>.from(json['headCoach']) as Map<String, dynamic>));
+    List<dynamic> list = json['playerList'];
+    list.forEach((player) => team.addPlayer(Player().fromJson(Map<String,dynamic>.from(player))));
+    
+    List<dynamic> list2 = json['assistantCoachList'];
+    list.forEach((coach) => team.addAssistanceCoach(Coach().fromJson(Map<String,dynamic>.from(coach))));
+    team.teamID = json['teamID'] as String;
+    return team;
+}
+
+Map<String, dynamic> toJson() => <String, dynamic>{
+      'teamName': this.teamName,
+      'headCoach': this.headCoach.toJson(),
+      'playerList': Player().listToJson(this.playerList),
+      'assistantCoachList': Coach().listToJson(this.assistantCoachList),
+      'teamID': this.teamID
+    };
+
 }
 
 

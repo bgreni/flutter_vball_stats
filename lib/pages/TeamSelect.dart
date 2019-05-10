@@ -73,7 +73,7 @@ class _TeamSelectState extends State<TeamSelect>{
               child: new Text(document["teamName"]),
               onPressed: (){
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TeamRoot(team: Team.fromJson(document.data))));
+                MaterialPageRoute(builder: (context) => TeamRoot(team: Team().fromJson(document.data))));
               },
             )
             );
@@ -121,7 +121,7 @@ class _TeamSelectState extends State<TeamSelect>{
               child: new Text(document["teamName"]),
               onPressed: (){
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TeamRoot(team: Team.fromJson(Map<String,dynamic>.from(document.data)))));
+                MaterialPageRoute(builder: (context) => TeamRoot(team: Team().fromJson(Map<String,dynamic>.from(document.data)))));
               },
             )
             );
@@ -152,12 +152,12 @@ class _TeamSelectState extends State<TeamSelect>{
     globals.isCurrentUserCoach = userTemp["isCoach"];
     if(globals.isCurrentUserCoach){
       currentState = PageState.COACH;
-      globals.coachUser = Coach.fromJson(userTemp.data);
+      globals.coachUser = Coach().fromJson(userTemp.data);
       this.setState((){});
     }
     else{
       currentState = PageState.PLAYER;
-      globals.playerUser = Player.fromJson(userTemp.data);
+      globals.playerUser = Player().fromJson(userTemp.data);
       this.setState((){});
     }
   }catch(e){

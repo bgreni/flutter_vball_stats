@@ -53,7 +53,7 @@ class _TeamRootState extends State<TeamRoot> {
     // switch statement to choose with page body we need
     switch(pageState){
       case PageState.PLAYER_STATS:
-        return PlayerStatsPage(team: widget.team);
+        return PlayerStatsPage();
       case PageState.NEW_GAME:
         return _showNewGame();
       default:

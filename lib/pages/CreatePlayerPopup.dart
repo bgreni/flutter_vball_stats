@@ -17,6 +17,7 @@ class _CreatePlayerPopupState extends State<CreatePlayerPopup>{
 final _formKey = new GlobalKey<FormState>();
 String _playerName;
 String _playerPosition;
+String _playerNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +34,7 @@ String _playerPosition;
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           _playerNameInput(),
+          _showPlayerNumberInput(),
           _showPlayerTypeDropdown(),
           _showConfirmButton(),
         ],
@@ -58,6 +60,25 @@ String _playerPosition;
         onSaved: (value) => _playerName = value,
       ),
     );
+  }
+
+  Widget _showPlayerNumberInput(){
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+      child: new TextFormField(
+        maxLines: 1,
+        keyboardType: TextInputType.number,
+        autofocus: false,
+        decoration: new InputDecoration(
+          hintText: "Player Number",
+          icon: new Icon(
+            Icons.confirmation_number,
+            color: Colors.grey
+          )),
+          validator: (value) => value.isEmpty ? "Must enter player number" : null,
+          onSaved: (value) => _playerNumber = value,
+        ),
+      );
   }
 
   Widget _showPlayerTypeDropdown(){
@@ -94,11 +115,11 @@ String _playerPosition;
     );
   }
 
-  void _validateAndSave(){
+  void _validateAndSave() {
     final _form = _formKey.currentState;
     if (_form.validate()){
       _form.save();
-      Player newPlayer = new Player(name: _playerName,playerPosition: _playerPosition);
+      Player newPlayer = new Player(name: _playerName,playerPosition: _playerPosition,playerNumber: _playerNumber);
       globals.currentTeam.addPlayer(newPlayer);
       Firestore.instance.collection("Teams").document(globals.currentTeam.teamID).updateData(globals.currentTeam.toJson());
       Navigator.pop(context);

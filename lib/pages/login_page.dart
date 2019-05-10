@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "package:vball_stats/services/authentication.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/entities/Coach.dart';
+import 'package:vball_stats/entities/User.dart';
 import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/globals.dart' as globals;
 
@@ -59,15 +60,9 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
           userId = await widget.auth.signUp(_email, _password);
           //widget.auth.sendEmailVerification();
           //_showVerifyEmailSentDialog();
-          var jsonContent;
-          if (_isCoach){
-            Coach newCoach = new Coach(coachID: userId,name: _username);
-            jsonContent = newCoach.toJson();
-          }
-          else{
-            Player newPlayer = new Player(name: _username,playerID: userId);
-            jsonContent = newPlayer.toJson();
-          }
+          User newUser = new User(userID: userId, username: _username, email: _email, isCoach: _isCoach);
+          var jsonContent = newUser.toJson();
+      
           Firestore.instance.collection("Users").document(userId).setData(jsonContent);
           print('Signed up user: $userId');
           _formMode = FormMode.LOGIN;
