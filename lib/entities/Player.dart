@@ -16,6 +16,11 @@ class Player {
   int aces;
   int serveErrors;
 
+  int threes;
+  int twos;
+  int ones;
+  int zeros;
+
 
   Player({this.name,this.playerNumber,this.playerPosition}){
     this.kills = 0;
@@ -26,6 +31,10 @@ class Player {
     this.digs = 0;
     this.aces = 0;
     this.serveErrors = 0;
+    this.threes = 0;
+    this.twos = 0;
+    this.ones = 0;
+    this.zeros = 0;
   }
 
 
@@ -47,7 +56,11 @@ class Player {
       ..blocked = json['blocked']
       ..digs = json['digs']
       ..aces = json['aces']
-      ..serveErrors = json['serveErrors'];
+      ..serveErrors = json['serveErrors']
+      ..threes = json['threes']
+      ..twos = json['twos']
+      ..ones = json['ones']
+      ..zeros = json['zeros'];
 }
 
 Map<String, dynamic> toJson() => <String,dynamic>{
@@ -62,6 +75,10 @@ Map<String, dynamic> toJson() => <String,dynamic>{
   'digs': this.digs,
   'aces': this.aces,
   'serveErrors': this.serveErrors,
+  'threes': this.threes,
+  'twos': this.twos,
+  'ones': this.ones,
+  'zeros': this.zeros,
   
 };
 

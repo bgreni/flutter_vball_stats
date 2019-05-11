@@ -55,6 +55,7 @@ class _TeamRootState extends State<TeamRoot> {
       case PageState.PLAYER_STATS:
         return PlayerStatsPage();
       case PageState.NEW_GAME:
+        // TODO: make this a real thing
         return _showNewGame();
       default:
       return PlayerStatsPage();
