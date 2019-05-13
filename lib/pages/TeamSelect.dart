@@ -4,7 +4,6 @@ import 'package:vball_stats/pages/CreateTeamPage.dart';
 import 'package:vball_stats/pages/teamRoot.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
 import 'package:vball_stats/globals.dart' as globals;
-import 'dart:convert';
 import 'package:vball_stats/entities/Coach.dart';
 import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/entities/Team.dart';
@@ -72,8 +71,9 @@ class _TeamSelectState extends State<TeamSelect>{
             child: new RaisedButton(
               child: new Text(document["teamName"]),
               onPressed: (){
+                globals.currentTeam = Team().fromJson(document.data);
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TeamRoot(team: Team().fromJson(document.data))));
+                MaterialPageRoute(builder: (context) => TeamRoot()));
               },
             )
             );
@@ -120,8 +120,9 @@ class _TeamSelectState extends State<TeamSelect>{
             child: new RaisedButton(
               child: new Text(document["teamName"]),
               onPressed: (){
+                globals.currentTeam = Team().fromJson(Map<String,dynamic>.from(document.data));
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TeamRoot(team: Team().fromJson(Map<String,dynamic>.from(document.data)))));
+                MaterialPageRoute(builder: (context) => TeamRoot()));
               },
             )
             );

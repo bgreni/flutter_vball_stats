@@ -40,7 +40,7 @@ class Player {
 
   List<Map<String,dynamic>> listToJson(List<Player> playerList){
     var m = new List<Map<String,dynamic>>();
-    playerList.forEach((player) => {m.add(player.toJson()) });
+    playerList.forEach((player) => m.add(player.toJson()));
     return m;
   } 
 

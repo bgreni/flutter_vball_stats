@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
 import 'PlayerStatsPage.dart';
+import 'NewGamePage.dart';
 import 'package:vball_stats/entities/Team.dart';
 import 'package:vball_stats/globals.dart' as globals;
 
@@ -12,11 +13,8 @@ class TeamRoot extends StatefulWidget {
   final auth;
   // will likely be needed later
   final String userId;
-  // passed in from the team select page
-  final Team team;
 
-  TeamRoot({this.auth, this.userId, this.team}){
-    globals.currentTeam = this.team;
+  TeamRoot({this.auth, this.userId}){
   }
 
   @override
@@ -56,7 +54,7 @@ class _TeamRootState extends State<TeamRoot> {
         return PlayerStatsPage();
       case PageState.NEW_GAME:
         // TODO: make this a real thing
-        return _showNewGame();
+        return NewGamePage();
       default:
       return PlayerStatsPage();
     }
@@ -76,7 +74,7 @@ class _TeamRootState extends State<TeamRoot> {
             },
           ),
           new ListTile(
-            title: new Text("Other Page"),
+            title: new Text("New Game"),
             onTap: (){
               goToNewGame();
               Navigator.pop(context);
@@ -101,15 +99,4 @@ class _TeamRootState extends State<TeamRoot> {
     });
   }
 
-
-
-  Widget _showNewGame(){
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        new Text("HEY FUCKER"),
-        new Text("KILL YOURSELF")
-      ],);
-  }
 }
