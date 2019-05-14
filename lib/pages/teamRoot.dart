@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
 import 'PlayerStatsPage.dart';
 import 'NewGamePage.dart';
+import 'AllGamesPage.dart';
 import 'package:vball_stats/entities/Team.dart';
 import 'package:vball_stats/globals.dart' as globals;
 
@@ -25,6 +26,7 @@ class TeamRoot extends StatefulWidget {
 enum PageState {
   PLAYER_STATS,
   NEW_GAME,
+  ALL_GAMES,
 }
 
 class _TeamRootState extends State<TeamRoot> {
@@ -53,8 +55,9 @@ class _TeamRootState extends State<TeamRoot> {
       case PageState.PLAYER_STATS:
         return PlayerStatsPage();
       case PageState.NEW_GAME:
-        // TODO: make this a real thing
         return NewGamePage();
+      case PageState.ALL_GAMES:
+        return AllGamesPage();
       default:
       return PlayerStatsPage();
     }
@@ -79,10 +82,24 @@ class _TeamRootState extends State<TeamRoot> {
               goToNewGame();
               Navigator.pop(context);
             },
-          )
+          ),
+          new ListTile(
+            title: new Text("View All Games"),
+            onTap: (){
+              goToAllGames();
+              Navigator.pop(context);
+            },
+          ),
         ],
       ),
     );
+  }
+
+  void goToAllGames(){
+    setState(() {
+     pageState = PageState.ALL_GAMES;
+     _barText = "Games"; 
+    });
   }
 
   void goToNewGame(){

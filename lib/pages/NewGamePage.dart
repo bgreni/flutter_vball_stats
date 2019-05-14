@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
+import 'package:vball_stats/pages/PlayerStatsPage.dart';
 import 'CreatePlayerPopup.dart';
 import 'package:vball_stats/entities/Team.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +15,7 @@ import 'package:vball_stats/globals.dart' as globals;
 enum NewGameState{
   INIT,
   ONGOING,
+  PASSING,
   ENDED,
 }
 
@@ -37,11 +39,15 @@ class _NewGamePageState extends State<NewGamePage> {
         return _newGameCreation();
       case NewGameState.ONGOING:
         return _statsPage();
+      case NewGameState.PASSING:
+        return _passingPage();
       case NewGameState.ENDED:
-        return null;
+        return _endGamePrompt();
     }
  
   }
+
+
 
 
   Widget _newGameCreation(){
@@ -88,6 +94,26 @@ class _NewGamePageState extends State<NewGamePage> {
         onPressed: _validateAndSave,),);
   }
 
+  Widget _showSwitchToPassButton(){
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(0.0, 0.0, 15.0, 0.0),
+      child: new RaisedButton(
+        child: new Text("Switch to passing"),
+        onPressed: (){pageState = NewGameState.PASSING; setState(() {});},
+      ),
+    );
+  }
+
+  Widget _showSwitchToMainStatsButton(){
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(0.0, 0.0, 15.0, 0.0),
+      child: new RaisedButton(
+        child: new Text("Switch to main stats"),
+        onPressed: (){pageState = NewGameState.ONGOING; setState(() {});},
+      ),
+    );
+  }
+
   void _validateAndSave(){
     final _form = _formKey.currentState;
     if(_form.validate()){
@@ -97,7 +123,7 @@ class _NewGamePageState extends State<NewGamePage> {
       opposingTeam: _opposingTeamName, 
       gameDate: DateTime.now(),
       players: players);
-      globals.currentTeam.gamesList.add(currentGame);
+      // globals.currentTeam.gamesList.add(currentGame);
       pageState = NewGameState.ONGOING;
 
       setState(() {
@@ -118,6 +144,7 @@ class _NewGamePageState extends State<NewGamePage> {
     new Column(crossAxisAlignment: CrossAxisAlignment.start, children: [    
     new DataTable(
               sortColumnIndex: 0,
+              sortAscending: true,
               columns: [
                 new DataColumn(label: new Text("Number")),
                 new DataColumn(label: new Text("Player")),
@@ -157,9 +184,85 @@ class _NewGamePageState extends State<NewGamePage> {
       child: new RaisedButton(
         child: new Text("End Game"),
         onPressed: () {pageState = NewGameState.ENDED; setState(() {});},
-      ),)]));
+      ),),
+      _showSwitchToPassButton()]));
   }
 
 
-  // TODO: MAKE ENDED PAGE A THINGs
+  Widget _endGamePrompt(){
+    return new Center(child:
+    new Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        new Text("Are you sure you would like to end this game?"),
+        new RaisedButton(
+          child: new Text("Yes"),
+          onPressed: endGame,
+          color: Colors.greenAccent,
+        ),
+        new RaisedButton(
+          child: new Text("No"),
+          onPressed:() {pageState = NewGameState.ONGOING; setState(() {});},
+          color: Colors.redAccent,
+        ),
+        ],
+    ));
+  }
+
+
+  Widget _passingPage(){
+    return new SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: 
+      new Column(crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        new DataTable(
+          sortColumnIndex: 0,
+          sortAscending: true,
+          columns: [
+            new DataColumn(label: new Text("Number")),
+            new DataColumn(label: new Text("Player")),
+            new DataColumn(label: new Text("Thress")),
+            new DataColumn(label: new Text("Twos")),
+            new DataColumn(label: new Text("Ones")),
+            new DataColumn(label: new Text("Zeros")),
+            new DataColumn(label: new Text("Average")),
+          ],
+          rows: <DataRow>[]+
+          currentGame.players.map((player) => DataRow(
+            cells: [
+              DataCell(new Text(player.playerNumber)),
+                  DataCell(new Text(player.name)),
+                  DataCell(new Text(player.threes.toString()),
+                  onTap:(){player.threes++; setState(() {});}),
+                  DataCell(new Text(player.twos.toString()),
+                  onTap:(){player.twos++; setState(() {});}),
+                  DataCell(new Text(player.ones.toString()),
+                  onTap:(){player.ones++; setState(() {});}),
+                  DataCell(new Text(player.zeros.toString()),
+                  onTap:(){player.zeros++; setState(() {});}),
+                  DataCell(new Text((((3*player.threes)+(2*player.twos)+(player.ones)+(player.zeros))
+                  /(player.threes+player.twos+player.ones+player.zeros)).toStringAsFixed(2))),
+            ]
+          )).toList(),
+        ),
+        new Padding(
+      padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+      child: new RaisedButton(
+        child: new Text("End Game"),
+        onPressed: () {pageState = NewGameState.ENDED; setState(() {});},
+      ),),
+      _showSwitchToMainStatsButton()
+      ],),
+    );
+  }
+
+  void endGame(){
+    globals.currentTeam.gamesList.add(currentGame);
+    Firestore.instance.collection("Teams").document(globals.currentTeam.teamID).updateData(globals.currentTeam.toJson());
+    setState(() {
+     pageState = NewGameState.INIT; 
+    });
+  }
 }
