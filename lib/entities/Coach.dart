@@ -1,5 +1,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
+part 'Coach.g.dart';
 
 
 @JsonSerializable()
@@ -21,15 +22,18 @@ class Coach {
     return m;
   }
 
-  Coach fromJson(Map<String, dynamic> json) {
-  return Coach(name: json['name'] as String, coachID: json['coachID'] as String)
-    ..isCoach = json['isCoach'] as bool;
-}
+  factory Coach.fromJson(Map<String, dynamic> json) => _$CoachFromJson(json);
+  Map<String, dynamic> toJson() => _$CoachToJson(this);
 
-Map<String, dynamic> toJson() => <String, dynamic>{
-      'name': this.name,
-      'coachID': this.coachID,
-      'isCoach': this.isCoach
-    };
+//   Coach fromJson(Map<String, dynamic> json) {
+//   return Coach(name: json['name'] as String, coachID: json['coachID'] as String)
+//     ..isCoach = json['isCoach'] as bool;
+// }
+
+// Map<String, dynamic> toJson() => <String, dynamic>{
+//       'name': this.name,
+//       'coachID': this.coachID,
+//       'isCoach': this.isCoach
+//     };
   
 }

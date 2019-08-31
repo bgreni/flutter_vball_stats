@@ -7,6 +7,11 @@ import 'package:vball_stats/entities/Team.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/entities/Game.dart';
+import 'package:vball_stats/entities/StatLines.dart';
+import 'package:vball_stats/entities/Roster.dart';
+import 'package:vball_stats/entities/Set.dart';
+import 'package:vball_stats/graphs/momentumGraph.dart';
+import 'package:vball_stats/widgets/WidgetFactory.dart';
 import 'package:vball_stats/globals.dart' as globals;
 
 
@@ -16,6 +21,7 @@ enum NewGameState{
   INIT,
   ONGOING,
   PASSING,
+  MOMENTUM_GRAPH,
   ENDED,
 }
 
@@ -29,6 +35,14 @@ class _NewGamePageState extends State<NewGamePage> {
   final _formKey = new GlobalKey<FormState>();
   String _opposingTeamName;
   Game currentGame;
+  List<dynamic> gameSets;
+  String selectedSet = '1';
+  Widget set1Widget;
+  Widget set2Widget;
+  Widget set3Widget;
+  Widget set4Widget;
+  Widget set5Widget;
+  Widget allSetsWidget;
 
   NewGameState pageState = NewGameState.INIT;
 
@@ -43,11 +57,35 @@ class _NewGamePageState extends State<NewGamePage> {
         return _passingPage();
       case NewGameState.ENDED:
         return _endGamePrompt();
+      case NewGameState.MOMENTUM_GRAPH:
+        return _momentumGraphPage();
+      default:
+        return _newGameCreation();
     }
  
   }
 
 
+  Widget _momentumGraphPage(){
+    return new ListView(
+      shrinkWrap: true,
+    children: <Widget>
+      [new SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: new Column(
+          children: [ MomentumGraph(),
+          ]))]);
+  }
+
+
+  Widget _switchToMomentumGraphButton(){
+    return new RaisedButton(
+      child: new Text("Switch to Graph"),
+      onPressed: () {setState(() {
+        pageState = NewGameState.MOMENTUM_GRAPH;
+      });},
+    );
+  }
 
 
   Widget _newGameCreation(){
@@ -65,6 +103,37 @@ class _NewGamePageState extends State<NewGamePage> {
     );
   }
 
+
+  Widget _gameInformation(){
+    return new Row(
+      children: [ 
+        _vsText(),
+        _timeStamp(),
+        _setSelectionDropdown(),
+        ]);
+  }
+
+  Widget _vsText(){
+    return  new Padding(
+        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        child: new Column(children: <Widget>[
+          new Text(currentGame.userTeam),
+          new Text("vs."),
+          new Text(currentGame.opposingTeam)
+        ],));
+  }
+
+  Widget _timeStamp(){
+    return new Padding(
+      padding: EdgeInsets.fromLTRB(20.0,20.0, 20.0, 5.0),
+      child: new Column(
+      children: <Widget>[
+        new Text(currentGame.gameDate.day.toString()),
+        new Text(currentGame.monthToString()),
+        new Text(currentGame.gameDate.year.toString()),
+      ],
+    ));
+  }
 
   Widget _teamNameInput(){
     return new Padding(
@@ -94,7 +163,7 @@ class _NewGamePageState extends State<NewGamePage> {
         onPressed: _validateAndSave,),);
   }
 
-  Widget _showSwitchToPassButton(){
+  Widget _showSwitchToPassButton() {
     return new Padding(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 15.0, 0.0),
       child: new RaisedButton(
@@ -104,7 +173,7 @@ class _NewGamePageState extends State<NewGamePage> {
     );
   }
 
-  Widget _showSwitchToMainStatsButton(){
+  Widget _showSwitchToMainStatsButton() {
     return new Padding(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 15.0, 0.0),
       child: new RaisedButton(
@@ -114,82 +183,134 @@ class _NewGamePageState extends State<NewGamePage> {
     );
   }
 
-  void _validateAndSave(){
+  void _validateAndSave() {
     final _form = _formKey.currentState;
     if(_form.validate()){
       _form.save();
-      List<Player> players = globals.currentTeam.resetPlayerStats();
+      Roster roster = globals.currentTeam.roster;
       currentGame = new Game(userTeam: globals.currentTeam.teamName,
       opposingTeam: _opposingTeamName, 
       gameDate: DateTime.now(),
-      players: players);
-      // globals.currentTeam.gamesList.add(currentGame);
-      pageState = NewGameState.ONGOING;
-
-      setState(() {
-        
-      });
+      userTeamStatlines: new StatLines.buildFromRoster(roster));
+      //currentGame.players.sort((a,b) => int.parse(a.playerNumber).compareTo(int.parse(b.playerNumber)));
+      //globals.currentTeam.gamesList.add(currentGame);
+      setState(() {pageState = NewGameState.ONGOING;});
     }
   }
 
 
 
-  Widget _statsPage(){
-  
+  void _leaveUnsavedConfirmPopup() {
+    showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (context){
+        return new AlertDialog(
+    content:new Center(
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          new Text("Game data will not be saved, do you wish to continue",textAlign: TextAlign.center,),
+                new RaisedButton(
+                  onPressed: () {Navigator.pop(context); setState(() {
+                   pageState = NewGameState.INIT; 
+                  });},
+                  child: new Text("Yes"),),
+          
+              new RaisedButton(onPressed:() => Navigator.pop(context),
+              child: new Text("No"),)
+            ],
+          ),
+      ),);});
+  }
 
-    return new SingleChildScrollView(
+  Widget _statsPage() {
+    return new GestureDetector(
+      onTap: () => setState((){}),
+    child: new WillPopScope(
+      onWillPop: (){_leaveUnsavedConfirmPopup();},
+    child: new SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child:
-            
-    new Column(crossAxisAlignment: CrossAxisAlignment.start, children: [    
-    new DataTable(
-              sortColumnIndex: 0,
-              sortAscending: true,
-              columns: [
-                new DataColumn(label: new Text("Number")),
-                new DataColumn(label: new Text("Player")),
-                new DataColumn(label: new Text("Kills")),
-                new DataColumn(label: new Text("Continues")),
-                new DataColumn(label: new Text("Blocks")),
-                new DataColumn(label: new Text("Errors")),
-                new DataColumn(label: new Text("Digs")),
-                new DataColumn(label: new Text("Aces")),
-                new DataColumn(label: new Text("Serve Errors")),
-              ],
-              rows: <DataRow>[] +
-                  currentGame.players
-                      .map((player) => DataRow(
-                    
-                        cells: [
-                            DataCell(new Text(player.playerNumber)),
-                            DataCell(new Text(player.name)),
-                            DataCell(new Text(player.kills.toString()),
-                            onTap: (){player.kills++; setState(() {});}),
-                            DataCell(new Text(player.continues.toString()),
-                            onTap: (){player.continues++; setState(() {});}),
-                            DataCell(new Text(player.blocks.toString()),
-                            onTap: (){player.blocks++; setState(() {});}),
-                            DataCell(new Text(player.errors.toString()),
-                            onTap: (){player.errors++; setState(() {});}),
-                            DataCell(new Text(player.digs.toString()),
-                            onTap: (){player.digs++; setState(() {});}),
-                            DataCell(new Text(player.aces.toString()),
-                            onTap: (){player.aces++; setState(() {});}),
-                            DataCell(new Text(player.serveErrors.toString()),
-                            onTap: (){player.serveErrors++; setState(() {});}),
-                          ]))
-                      .toList()),
+    new Column(crossAxisAlignment: CrossAxisAlignment.start, children: [ 
+      _gameInformation(),   
+    _showSelectedSet(),
     new Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
       child: new RaisedButton(
         child: new Text("End Game"),
         onPressed: () {pageState = NewGameState.ENDED; setState(() {});},
       ),),
-      _showSwitchToPassButton()]));
+      _showSwitchToPassButton(),]))));
   }
 
+  Widget _showSelectedSet() {
+    if (selectedSet == "all") {
+      if (allSetsWidget == null) {
+        allSetsWidget = WidgetFactory.createImmutableStatsTable(currentGame.getStatLinesForWholeGame());
+      }
+      return allSetsWidget;
+    }
+    else {
+      int index = int.parse(selectedSet);
+      switch (index) {
+        case 1:
+          if (set1Widget == null) {
+            print("BUDDY WAS NULL");
+            set1Widget = WidgetFactory.createMutableStatsTable(currentGame.set1.statLines, ()=>setState((){}));
+          }
+          return set1Widget;
+        case 2:
+          return WidgetFactory.createMutableStatsTable(currentGame.set2.statLines, ()=>callback());
+        case 3:
+          return WidgetFactory.createMutableStatsTable(currentGame.set3.statLines, ()=>callback());
+        case 4:
+          return WidgetFactory.createMutableStatsTable(currentGame.set4.statLines, ()=>callback());
+        case 5:
+          return WidgetFactory.createMutableStatsTable(currentGame.set5.statLines, ()=>callback());
+        default:
+          return new Text("AN ERROR HAS OCCURRED");
+      }
+    }
+  }
 
-  Widget _endGamePrompt(){
+  void callback() {
+    setState(() { 
+    });
+  }
+
+  Widget _setSelectionDropdown() {
+    gameSets = [
+      currentGame.set1,
+      currentGame.set2,
+      currentGame.set3,
+      currentGame.set4,
+      currentGame.set5,
+      new Set('all'),
+    ];
+    for (Set s in gameSets) {
+      s.statLines = StatLines.buildFromRoster(globals.currentTeam.roster);
+    }
+    return DropdownButton<dynamic>(
+      value: selectedSet,
+      onChanged: (newValue) {
+        setState(() {
+         selectedSet = newValue; 
+        });
+      },
+      items: gameSets
+        .map<DropdownMenuItem<dynamic>>((currentSet) {
+          return DropdownMenuItem<dynamic>(
+            value: currentSet.setNumber,
+            child: new Text(currentSet.setNumber),
+          );
+        }).toList(),
+    );
+  }
+
+  Widget _endGamePrompt() {
     return new Center(child:
     new Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -211,54 +332,28 @@ class _NewGamePageState extends State<NewGamePage> {
   }
 
 
-  Widget _passingPage(){
-    return new SingleChildScrollView(
+  Widget _passingPage() {
+    return new WillPopScope(
+      onWillPop: (){_leaveUnsavedConfirmPopup();},
+    child: new SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: 
       new Column(crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        new DataTable(
-          sortColumnIndex: 0,
-          sortAscending: true,
-          columns: [
-            new DataColumn(label: new Text("Number")),
-            new DataColumn(label: new Text("Player")),
-            new DataColumn(label: new Text("Thress")),
-            new DataColumn(label: new Text("Twos")),
-            new DataColumn(label: new Text("Ones")),
-            new DataColumn(label: new Text("Zeros")),
-            new DataColumn(label: new Text("Average")),
-          ],
-          rows: <DataRow>[]+
-          currentGame.players.map((player) => DataRow(
-            cells: [
-              DataCell(new Text(player.playerNumber)),
-                  DataCell(new Text(player.name)),
-                  DataCell(new Text(player.threes.toString()),
-                  onTap:(){player.threes++; setState(() {});}),
-                  DataCell(new Text(player.twos.toString()),
-                  onTap:(){player.twos++; setState(() {});}),
-                  DataCell(new Text(player.ones.toString()),
-                  onTap:(){player.ones++; setState(() {});}),
-                  DataCell(new Text(player.zeros.toString()),
-                  onTap:(){player.zeros++; setState(() {});}),
-                  DataCell(new Text((((3*player.threes)+(2*player.twos)+(player.ones)+(player.zeros))
-                  /(player.threes+player.twos+player.ones+player.zeros)).toStringAsFixed(2))),
-            ]
-          )).toList(),
-        ),
+        _gameInformation(),
+        WidgetFactory.createMutablePassingTable(currentGame.userTeamStatlines, () => setState((){})),
         new Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
       child: new RaisedButton(
         child: new Text("End Game"),
         onPressed: () {pageState = NewGameState.ENDED; setState(() {});},
       ),),
-      _showSwitchToMainStatsButton()
+      _showSwitchToMainStatsButton(),
       ],),
-    );
-  }
+    ));
+  }  
 
-  void endGame(){
+  void endGame() {
     globals.currentTeam.gamesList.add(currentGame);
     Firestore.instance.collection("Teams").document(globals.currentTeam.teamID).updateData(globals.currentTeam.toJson());
     setState(() {

@@ -59,9 +59,12 @@ class _CreateTeamPageState extends State<CreateTeamPage>{
       form.save();
       var ref = Firestore.instance.collection("Teams").document();
 
-      Team newTeam = Team(teamName: _teamName,headCoach: globals.coachUser,teamID: ref.documentID);
+      Team newTeam = Team(teamName: _teamName,headCoach: globals.currentUser,teamID: ref.documentID);
       var json = newTeam.toJson();
       Firestore.instance.collection("Teams").document(ref.documentID).setData(json);
+
+      globals.currentUser.myTeams.add(newTeam.teamName);
+      Firestore.instance.collection("Users").document(globals.currentUser.userID).updateData(globals.currentUser.toJson());
       Navigator.pop(context);
     }
   }

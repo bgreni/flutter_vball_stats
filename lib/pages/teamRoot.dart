@@ -5,6 +5,7 @@ import 'NewGamePage.dart';
 import 'AllGamesPage.dart';
 import 'package:vball_stats/entities/Team.dart';
 import 'package:vball_stats/globals.dart' as globals;
+import 'JoinCodePage.dart';
 
 /// Root page for all team related activities
 /// shown after the users chooses a team
@@ -27,6 +28,7 @@ enum PageState {
   PLAYER_STATS,
   NEW_GAME,
   ALL_GAMES,
+  SET_JOIN_CODE
 }
 
 class _TeamRootState extends State<TeamRoot> {
@@ -58,6 +60,8 @@ class _TeamRootState extends State<TeamRoot> {
         return NewGamePage();
       case PageState.ALL_GAMES:
         return AllGamesPage();
+      case PageState.SET_JOIN_CODE:
+        return JoinCodePage();
       default:
       return PlayerStatsPage();
     }
@@ -90,9 +94,22 @@ class _TeamRootState extends State<TeamRoot> {
               Navigator.pop(context);
             },
           ),
+          new ListTile(
+            title: new Text("Set Join Code"),
+            onTap: (){
+            goToJoinCodePage();
+            Navigator.pop(context);
+            })
         ],
       ),
     );
+  }
+
+  void goToJoinCodePage(){
+    setState(() {
+     pageState = PageState.SET_JOIN_CODE;
+     _barText = "Set Join Code"; 
+    });
   }
 
   void goToAllGames(){

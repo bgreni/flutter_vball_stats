@@ -4,6 +4,7 @@ import 'package:vball_stats/services/authentication.dart';
 import 'package:vball_stats/pages/TeamSelect.dart';
 import 'package:vball_stats/globals.dart' as globals;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:vball_stats/entities/User.dart';
 
 
 
@@ -29,30 +30,29 @@ class _RootPageState extends State<RootPage> {
   @override
   void initState(){
     super.initState();
-    widget.auth.getCurrentUser().then((user) {
+    widget.auth.getCurrentUser().then((user) async{
+      var userSnap = await Firestore.instance.collection("Users").document(user.uid.toString()).get();
+       globals.currentUser = User.fromJson(userSnap.data);
       setState(() {
         if (user != null) {
-          _userId = user?.uid;
+          _userId = user.uid;
         }
         authStatus =
-            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+            user.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
       });
     });
   }
 
   void _onLoggedIn() {
-    widget.auth.getCurrentUser().then((user){
-      setState(() {
-        _userId = user.uid.toString();
-      });
-    });
+    widget.auth.getCurrentUser().then((user) {
     setState(() {
       authStatus = AuthStatus.LOGGED_IN;
+      _userId = user.uid.toString();
 
     });
-  }
+  });}
 
-   _onSignedOut() {
+   void _onSignedOut() {
     setState(() {
       authStatus = AuthStatus.NOT_LOGGED_IN;
       _userId = "";

@@ -1,85 +1,84 @@
+import 'package:flutter/foundation.dart';
 
 import 'Coach.dart';
+import 'User.dart';
 import 'Player.dart';
 import 'Game.dart';
+import 'StatLine.dart';
+import 'StatLines.dart';
+import 'Roster.dart';
+import 'package:json_annotation/json_annotation.dart';
+part 'Team.g.dart';
 
-
+@JsonSerializable(explicitToJson: true)
 
 class Team {
-
   String teamName;
-  Coach headCoach;
-  List<Player> playerList;
+  User headCoach;
+  Roster roster;
   List<Coach> assistantCoachList;
   String teamID;
   List<Game> gamesList;
+  String joinCode;
 
-  Team({this.teamName,this.headCoach,this.teamID}){
-    this.playerList = new List();
+  Team({this.teamName, this.headCoach, this.teamID}) {
+    this.roster = new Roster();
     this.assistantCoachList = new List();
     this.gamesList = new List();
   }
 
-  void addPlayer(Player newPlayer){
-    this.playerList.add(newPlayer);
+  void addPlayer(Player newPlayer) {
+    this.roster.playerList.add(newPlayer);
   }
-
-  void addAssistanceCoach(Coach assistantCoach){
+  void addAssistanceCoach(Coach assistantCoach) {
     this.assistantCoachList.add(assistantCoach);
   }
 
-  List<Player> resetPlayerStats(){
-    List<Player> temp = playerList;
-    for(Player player in temp){
-      player.kills = 0;
-      player.continues = 0;
-      player.blocks = 0;
-      player.errors = 0;
-      player.blocked = 0;
-      player.digs = 0;
-      player.aces = 0;
-      player.serveErrors = 0;
-
-      player.threes = 0;
-      player.twos = 0;
-      player.ones = 0;
-      player.zeros = 0;
+  StatLines getPlayerTotals() {
+    StatLines totalsStatLine = new StatLines.buildFromRoster(this.roster);
+    for (Game game in gamesList) {
+      StatLines gameStatLines = game.getStatLinesForWholeGame();
+      for (StatLine statLine in gameStatLines.statLineList) {
+        StatLine matchingStatLine = totalsStatLine.statLineList.where((stl)
+          => stl.player.name == statLine.player.name).first;
+          matchingStatLine.mergeStatLines(statLine);
+      }
     }
-    return temp;
+    return totalsStatLine;
   }
 
+  factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
+  Map<String, dynamic> toJson() => _$TeamToJson(this);
   
+  // Team fromJson(Map<String, dynamic> json) {
+  //   Team team = Team(
+  //       teamName: json['teamName'] as String,
+  //       headCoach: json['headCoach'] == null
+  //           ? null
+  //           : User().fromJson(Map<String, dynamic>.from(json['headCoach'])
+  //               as Map<String, dynamic>))
+  //               ..joinCode = json['joinCode'];
+  //   team.roster = Roster().fromJson(json['roster']);
 
+  //   var list2 = json['assistantCoachList'];
+  //   list2.forEach((coach) => team.addAssistanceCoach(
+  //       Coach().fromJson(Map<String, dynamic>.from(coach))));
+  //   team.teamID = json['teamID'] as String;
 
+  //   var list3 = json['gamesList'];
+  //   list3.forEach((game) =>
+  //       team.gamesList.add(Game().fromJson(Map<String, dynamic>.from(game))));
 
-  Team fromJson(Map<String, dynamic> json) {
-  Team team = Team(
-      teamName: json['teamName'] as String,
-      headCoach: json['headCoach'] == null
-          ? null
-          : Coach().fromJson(Map<String,dynamic>.from(json['headCoach']) as Map<String, dynamic>));
-    List<dynamic> list = json['playerList'];
-    list.forEach((player) => team.addPlayer(Player().fromJson(Map<String,dynamic>.from(player))));
-    
-    List<dynamic> list2 = json['assistantCoachList'];
-    list2.forEach((coach) => team.addAssistanceCoach(Coach().fromJson(Map<String,dynamic>.from(coach))));
-    team.teamID = json['teamID'] as String;
+  //   return team;
+  // }
 
-    List<dynamic> list3 = json['gamesList'];
-    list3.forEach((game) => team.gamesList.add(Game().fromJson(game)));
-
-    return team;
+  // Map<String, dynamic> toJson() => <String, dynamic>{
+  //       'teamName': this.teamName,
+  //       'headCoach': this.headCoach.toJson(),
+  //       'roster': this.roster.toJson(),
+  //       'assistantCoachList': Coach().listToJson(this.assistantCoachList),
+  //       'gamesList': Game().listToJson(this.gamesList),
+  //       'teamID': this.teamID,
+  //       'joinCode': this.joinCode,
+  //     };
 }
-
-Map<String, dynamic> toJson() => <String, dynamic>{
-      'teamName': this.teamName,
-      'headCoach': this.headCoach.toJson(),
-      'playerList': Player().listToJson(this.playerList),
-      'assistantCoachList': Coach().listToJson(this.assistantCoachList),
-      'gamesList': Game().listToJson(this.gamesList),
-      'teamID': this.teamID
-    };
-
-}
-
-

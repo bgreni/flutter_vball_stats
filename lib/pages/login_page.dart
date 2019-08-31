@@ -55,6 +55,8 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
       try {
         if (_formMode == FormMode.LOGIN) {
           userId = await widget.auth.signIn(_email, _password);
+          var userSnap = await Firestore.instance.collection("Users").document(userId).get();
+          globals.currentUser = User.fromJson(userSnap.data);
           print('Signed in: $userId');
         } else {
           userId = await widget.auth.signUp(_email, _password);
@@ -62,7 +64,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
           //_showVerifyEmailSentDialog();
           User newUser = new User(userID: userId, username: _username, email: _email, isCoach: _isCoach);
           var jsonContent = newUser.toJson();
-      
+          globals.currentUser = newUser;
           Firestore.instance.collection("Users").document(userId).setData(jsonContent);
           print('Signed up user: $userId');
           _formMode = FormMode.LOGIN;

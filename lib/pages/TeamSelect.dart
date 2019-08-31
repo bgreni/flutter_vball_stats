@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/pages/CreateTeamPage.dart';
+import 'package:vball_stats/pages/JoinTeamPage.dart';
 import 'package:vball_stats/pages/teamRoot.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
 import 'package:vball_stats/globals.dart' as globals;
 import 'package:vball_stats/entities/Coach.dart';
 import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/entities/Team.dart';
+import 'package:vball_stats/services/FirestoreHelper.dart';
 
 class TeamSelect extends StatefulWidget{
   final String userID;
@@ -27,6 +29,7 @@ class _TeamSelectState extends State<TeamSelect>{
  
   @override
   Widget build(BuildContext context) {
+
     checkForCoach();
     return Scaffold(
       appBar: new MyAppBar(appBarContext: context,barText: "Select Team",),
@@ -49,6 +52,7 @@ class _TeamSelectState extends State<TeamSelect>{
     }
   }
 
+
   Widget _showPlayerSelect(){
     return new StreamBuilder(
       stream: Firestore.instance.collection("Teams").snapshots(),
@@ -57,6 +61,27 @@ class _TeamSelectState extends State<TeamSelect>{
         if (snapshot.data == null) return CircularProgressIndicator();
     
 
+    bool hasTeams = false;
+        for (var doc in snapshot.data.documents){
+          if (globals.currentUser.myTeams.contains(doc['teamName'])){
+            hasTeams = true;
+            break;
+          }
+        }
+
+        if (!hasTeams){
+          return new Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                new Text("No Teams"),
+                _joinTeamButton(),
+              ],
+            )
+          );
+        }   
+
         return new Center(
         child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -66,36 +91,42 @@ class _TeamSelectState extends State<TeamSelect>{
           // constrain the listview so it doesn't throw and error
           shrinkWrap: true,
           children: snapshot.data.documents.map((document){
+            if(globals.currentUser.myTeams.contains(document["teamName"])){
             return new FractionallySizedBox(
               widthFactor: 0.5,
             child: new RaisedButton(
               child: new Text(document["teamName"]),
               onPressed: (){
-                globals.currentTeam = Team().fromJson(document.data);
+                globals.currentTeam = Team.fromJson(document.data);
                 Navigator.push(context,
                 MaterialPageRoute(builder: (context) => TeamRoot()));
               },
             )
             );
-          }
+          }}
           ).toList()
         
         
         ),        
-        new RaisedButton(
-          color: Colors.lightBlueAccent,
-          child: new Text("Join a Team"),
-          onPressed: (){
-          Navigator.push(context, 
-          MaterialPageRoute(builder: (context) => CreateTeamPage())
-          );
-          }
-        )
+        _joinTeamButton(),
         ]
         )
         );
       }
       );
+  }
+
+
+  Widget _joinTeamButton(){
+    return new RaisedButton(
+          color: Colors.lightBlueAccent,
+          child: new Text("Join a Team"),
+          onPressed: (){
+          Navigator.push(context, 
+          MaterialPageRoute(builder: (context) => JoinTeamPage())
+          );
+          }
+        );
   }
 
   Widget _showCoachTeamSelect(){
@@ -104,7 +135,27 @@ class _TeamSelectState extends State<TeamSelect>{
       builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
 
         if (snapshot.data == null) return CircularProgressIndicator();
-    
+
+        bool hasTeams = false;
+        for (var doc in snapshot.data.documents){
+          if (globals.currentUser.myTeams.contains(doc['teamName'])){
+            hasTeams = true;
+            break;
+          }
+        }
+
+        if (!hasTeams){
+          return new Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                new Text("No Teams"),
+                _createTeamButton(),
+              ],
+            )
+          );
+        }  
 
         return new Center(
         child: Column(
@@ -115,31 +166,22 @@ class _TeamSelectState extends State<TeamSelect>{
           // constrain the listview so it doesn't throw and error
           shrinkWrap: true,
           children: snapshot.data.documents.map((document){
+            if(globals.currentUser.myTeams.contains(document["teamName"])){
             return new FractionallySizedBox(
               widthFactor: 0.5,
             child: new RaisedButton(
               child: new Text(document["teamName"]),
               onPressed: (){
-                globals.currentTeam = Team().fromJson(Map<String,dynamic>.from(document.data));
+                globals.currentTeam = Team.fromJson(Map<String,dynamic>.from(document.data));
                 Navigator.push(context,
                 MaterialPageRoute(builder: (context) => TeamRoot()));
               },
             )
             );
-          }
+          }}
           ).toList()
-        
-        
         ),        
-        new RaisedButton(
-          color: Colors.lightBlueAccent,
-          child: new Text("Create New Team"),
-          onPressed: (){
-          Navigator.push(context, 
-          MaterialPageRoute(builder: (context) => CreateTeamPage())
-          );
-          }
-        )
+        _createTeamButton(),
         ]
         )
         );
@@ -147,22 +189,30 @@ class _TeamSelectState extends State<TeamSelect>{
       );
   }
 
+  Widget _createTeamButton(){
+    return new RaisedButton(
+          color: Colors.lightBlueAccent,
+          child: new Text("Create New Team"),
+          onPressed: (){
+          Navigator.push(context, 
+          MaterialPageRoute(builder: (context) => CreateTeamPage())
+          );
+          }
+        );
+  }
+
   void checkForCoach() async{
     try{
-    var userTemp = await Firestore.instance.collection("Users").document(widget.userID).get();
-    globals.isCurrentUserCoach = userTemp["isCoach"];
-    if(globals.isCurrentUserCoach){
+    if(globals.currentUser.isCoach){
       currentState = PageState.COACH;
-      globals.coachUser = Coach().fromJson(userTemp.data);
       this.setState((){});
     }
     else{
       currentState = PageState.PLAYER;
-      globals.playerUser = Player().fromJson(userTemp.data);
       this.setState((){});
     }
   }catch(e){
-
+    print(e);
   }
   }
 
