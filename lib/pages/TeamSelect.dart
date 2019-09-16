@@ -5,10 +5,8 @@ import 'package:vball_stats/pages/JoinTeamPage.dart';
 import 'package:vball_stats/pages/teamRoot.dart';
 import 'package:vball_stats/pages/MyAppBar.dart';
 import 'package:vball_stats/globals.dart' as globals;
-import 'package:vball_stats/entities/Coach.dart';
-import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/entities/Team.dart';
-import 'package:vball_stats/services/FirestoreHelper.dart';
+import 'dart:convert';
 
 class TeamSelect extends StatefulWidget{
   final String userID;
@@ -172,7 +170,7 @@ class _TeamSelectState extends State<TeamSelect>{
             child: new RaisedButton(
               child: new Text(document["teamName"]),
               onPressed: (){
-                globals.currentTeam = Team.fromJson(Map<String,dynamic>.from(document.data));
+                globals.currentTeam = Team.fromJson(json.decode(json.encode(document.data)));
                 Navigator.push(context,
                 MaterialPageRoute(builder: (context) => TeamRoot()));
               },

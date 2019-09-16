@@ -6,23 +6,26 @@ part of 'StatLine.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-StatLine _$StatLineFromJson(Map<String, dynamic> json) {
+StatLine _$StatLineFromJson(Map json) {
   return StatLine(
-      player: json['player'] == null
-          ? null
-          : Player.fromJson(json['player'] as Map<String, dynamic>))
-    ..kills = json['kills'] as int
-    ..continues = json['continues'] as int
-    ..blocks = json['blocks'] as int
-    ..errors = json['errors'] as int
-    ..blocked = json['blocked'] as int
-    ..digs = json['digs'] as int
-    ..aces = json['aces'] as int
-    ..serveErrors = json['serveErrors'] as int
-    ..threes = json['threes'] as int
-    ..twos = json['twos'] as int
-    ..ones = json['ones'] as int
-    ..zeros = json['zeros'] as int;
+    player: json['player'] == null
+        ? null
+        : Player.fromJson((json['player'] as Map)?.map(
+            (k, e) => MapEntry(k as String, e),
+          )),
+  )
+    ..kills = json['kills'] as double
+    ..continues = json['continues'] as double
+    ..blocks = json['blocks'] as double
+    ..errors = json['errors'] as double
+    ..blocked = json['blocked'] as double
+    ..digs = json['digs'] as double
+    ..aces = json['aces'] as double
+    ..serveErrors = json['serveErrors'] as double
+    ..threes = json['threes'] as double
+    ..twos = json['twos'] as double
+    ..ones = json['ones'] as double
+    ..zeros = json['zeros'] as double;
 }
 
 Map<String, dynamic> _$StatLineToJson(StatLine instance) => <String, dynamic>{
@@ -38,5 +41,5 @@ Map<String, dynamic> _$StatLineToJson(StatLine instance) => <String, dynamic>{
       'threes': instance.threes,
       'twos': instance.twos,
       'ones': instance.ones,
-      'zeros': instance.zeros
+      'zeros': instance.zeros,
     };

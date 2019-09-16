@@ -3,7 +3,6 @@ import 'package:vball_stats/pages/MyAppBar.dart';
 import 'PlayerStatsPage.dart';
 import 'NewGamePage.dart';
 import 'AllGamesPage.dart';
-import 'package:vball_stats/entities/Team.dart';
 import 'package:vball_stats/globals.dart' as globals;
 import 'JoinCodePage.dart';
 
@@ -16,8 +15,7 @@ class TeamRoot extends StatefulWidget {
   // will likely be needed later
   final String userId;
 
-  TeamRoot({this.auth, this.userId}){
-  }
+  TeamRoot({this.auth, this.userId});
 
   @override
   State<StatefulWidget> createState() => _TeamRootState();

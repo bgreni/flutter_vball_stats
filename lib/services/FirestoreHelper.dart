@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/entities/User.dart';
 import 'package:vball_stats/entities/Team.dart';
 import 'package:vball_stats/globals.dart' as globals;
-import 'package:vball_stats/services/authentication.dart';
 
 
 class FirestoreHelper{

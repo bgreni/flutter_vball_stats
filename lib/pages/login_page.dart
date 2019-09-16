@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import "package:vball_stats/services/authentication.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vball_stats/entities/Coach.dart';
 import 'package:vball_stats/entities/User.dart';
-import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/globals.dart' as globals;
 
 class LoginSignUpPage extends StatefulWidget {
@@ -55,7 +53,10 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
       try {
         if (_formMode == FormMode.LOGIN) {
           userId = await widget.auth.signIn(_email, _password);
+          print("USERID");
+          print(userId);
           var userSnap = await Firestore.instance.collection("Users").document(userId).get();
+          print(userSnap);
           globals.currentUser = User.fromJson(userSnap.data);
           print('Signed in: $userId');
         } else {
@@ -82,7 +83,6 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
         setState(() {
           _isLoading = false;
           if (_isIos) {
-            _errorMessage = e.details;
           } else
             _errorMessage = e.message;
         });
@@ -172,7 +172,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showPasswordInput(),
               _showPrimaryButton(),
               _showSecondaryButton(),
-              _showErrorMessage(),
+              //_showErrorMessage(),
             ],
           ),
         ));
@@ -192,7 +192,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showAccountTypeDropdown(),
               _showPrimaryButton(),
               _showSecondaryButton(),
-              _showErrorMessage(),
+              //_showErrorMessage(),
             ],
           ),
         ));

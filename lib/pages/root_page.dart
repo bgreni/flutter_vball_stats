@@ -31,14 +31,16 @@ class _RootPageState extends State<RootPage> {
   void initState(){
     super.initState();
     widget.auth.getCurrentUser().then((user) async{
+      if (user != null) {
       var userSnap = await Firestore.instance.collection("Users").document(user.uid.toString()).get();
        globals.currentUser = User.fromJson(userSnap.data);
+      }
       setState(() {
         if (user != null) {
           _userId = user.uid;
         }
         authStatus =
-            user.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+            _userId == "" ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
       });
     });
   }

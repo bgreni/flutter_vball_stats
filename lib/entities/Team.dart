@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'Coach.dart';
 import 'User.dart';
 import 'Player.dart';
@@ -35,16 +33,31 @@ class Team {
   }
 
   StatLines getPlayerTotals() {
+    if (roster.playerList.length == 0) {
+      return StatLines.buildFromRoster(this.roster);
+    }
     StatLines totalsStatLine = new StatLines.buildFromRoster(this.roster);
     for (Game game in gamesList) {
-      StatLines gameStatLines = game.getStatLinesForWholeGame();
+      StatLines gameStatLines = game.getStatLinesForWholeGame(this.roster);
       for (StatLine statLine in gameStatLines.statLineList) {
         StatLine matchingStatLine = totalsStatLine.statLineList.where((stl)
           => stl.player.name == statLine.player.name).first;
-          matchingStatLine.mergeStatLines(statLine);
+        matchingStatLine.mergeStatLines(statLine);
       }
     }
+    print(totalsStatLine.statLineList[0].kills);
     return totalsStatLine;
+  }
+
+  StatLines getGameAverages() {
+    int numberOfGames = gamesList.length;
+    StatLines totals = getPlayerTotals();
+    StatLines averages = new StatLines();
+    for (StatLine statLine in totals.statLineList) {
+      StatLine temp = statLine.getAverageFromGivenNumber(numberOfGames);
+      averages.statLineList.add(temp);
+    }
+    return averages;
   }
 
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);

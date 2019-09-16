@@ -12,6 +12,7 @@ class StatLines {
     this.statLineList = new List();
   }
 
+
   factory StatLines.buildFromRoster(Roster roster) {
     StatLines newStatLines = new StatLines();
     roster.playerList.forEach((player) =>

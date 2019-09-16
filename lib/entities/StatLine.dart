@@ -8,19 +8,19 @@ class StatLine {
 
   Player player;
 
-  int kills;
-  int continues;
-  int blocks;
-  int errors;
-  int blocked;
-  int digs;
-  int aces;
-  int serveErrors;
+  double kills;
+  double continues;
+  double blocks;
+  double errors;
+  double blocked;
+  double digs;
+  double aces;
+  double serveErrors;
 
-  int threes;
-  int twos;
-  int ones;
-  int zeros;
+  double threes;
+  double twos;
+  double ones;
+  double zeros;
 
   StatLine({this.player}) {
     this.kills = 0;
@@ -64,6 +64,24 @@ class StatLine {
                 (zeros)) /
             (threes + twos + ones + zeros))
         .toStringAsFixed(2);
+  }
+
+  StatLine getAverageFromGivenNumber(int number) {
+    StatLine averageStatLine = new StatLine();
+    averageStatLine.player = this.player;
+    averageStatLine.kills = this.kills/number;
+    averageStatLine.continues = this.continues/number;
+    averageStatLine.blocks = this.blocks/number;
+    averageStatLine.errors = this.errors/number;
+    averageStatLine.blocked = this.blocked/number;
+    averageStatLine.digs = this.digs/number;
+    averageStatLine.aces = this.aces/number;
+    averageStatLine.serveErrors = this.serveErrors/number;
+    averageStatLine.threes = this.threes/number;
+    averageStatLine.twos = this.twos/number;
+    averageStatLine.ones = this.ones/number;
+    averageStatLine.zeros = this.zeros/number;
+    return averageStatLine;
   }
 
   factory StatLine.fromJson(Map<String, dynamic> json) => _$StatLineFromJson(json);

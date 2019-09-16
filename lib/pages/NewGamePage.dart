@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:vball_stats/pages/MyAppBar.dart';
-import 'package:vball_stats/pages/PlayerStatsPage.dart';
-import 'CreatePlayerPopup.dart';
-import 'package:vball_stats/entities/Team.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vball_stats/entities/Player.dart';
+
 import 'package:vball_stats/entities/Game.dart';
 import 'package:vball_stats/entities/StatLines.dart';
 import 'package:vball_stats/entities/Roster.dart';
@@ -37,12 +33,7 @@ class _NewGamePageState extends State<NewGamePage> {
   Game currentGame;
   List<dynamic> gameSets;
   String selectedSet = '1';
-  Widget set1Widget;
-  Widget set2Widget;
-  Widget set3Widget;
-  Widget set4Widget;
-  Widget set5Widget;
-  Widget allSetsWidget;
+  bool startupState = true;
 
   NewGameState pageState = NewGameState.INIT;
 
@@ -193,7 +184,7 @@ class _NewGamePageState extends State<NewGamePage> {
       gameDate: DateTime.now(),
       userTeamStatlines: new StatLines.buildFromRoster(roster));
       //currentGame.players.sort((a,b) => int.parse(a.playerNumber).compareTo(int.parse(b.playerNumber)));
-      //globals.currentTeam.gamesList.add(currentGame);
+      // globals.currentTeam.gamesList.add(currentGame);
       setState(() {pageState = NewGameState.ONGOING;});
     }
   }
@@ -236,7 +227,7 @@ class _NewGamePageState extends State<NewGamePage> {
         child:
     new Column(crossAxisAlignment: CrossAxisAlignment.start, children: [ 
       _gameInformation(),   
-    _showSelectedSet(),
+    _showSelectedSetForMainStats(),
     new Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
       child: new RaisedButton(
@@ -246,39 +237,27 @@ class _NewGamePageState extends State<NewGamePage> {
       _showSwitchToPassButton(),]))));
   }
 
-  Widget _showSelectedSet() {
+  Widget _showSelectedSetForMainStats() {
+    // return WidgetFactory.createMutableStatsTable(currentGame.userTeamStatlines, ()=>setState((){}));
     if (selectedSet == "all") {
-      if (allSetsWidget == null) {
-        allSetsWidget = WidgetFactory.createImmutableStatsTable(currentGame.getStatLinesForWholeGame());
-      }
-      return allSetsWidget;
+      return WidgetFactory.createImmutableStatsTable(currentGame.getStatLinesForWholeGame(globals.currentTeam.roster));
     }
     else {
-      int index = int.parse(selectedSet);
-      switch (index) {
-        case 1:
-          if (set1Widget == null) {
-            print("BUDDY WAS NULL");
-            set1Widget = WidgetFactory.createMutableStatsTable(currentGame.set1.statLines, ()=>setState((){}));
-          }
-          return set1Widget;
-        case 2:
-          return WidgetFactory.createMutableStatsTable(currentGame.set2.statLines, ()=>callback());
-        case 3:
-          return WidgetFactory.createMutableStatsTable(currentGame.set3.statLines, ()=>callback());
-        case 4:
-          return WidgetFactory.createMutableStatsTable(currentGame.set4.statLines, ()=>callback());
-        case 5:
-          return WidgetFactory.createMutableStatsTable(currentGame.set5.statLines, ()=>callback());
+      switch (selectedSet) {
+        case "1":
+          return WidgetFactory.createMutableStatsTable(currentGame.set1.statLines, ()=>setState((){}));
+        case "2":
+          return WidgetFactory.createMutableStatsTable(currentGame.set2.statLines, ()=>setState((){}));
+        case "3":
+          return WidgetFactory.createMutableStatsTable(currentGame.set3.statLines, ()=>setState((){}));
+        case "4":
+          return WidgetFactory.createMutableStatsTable(currentGame.set4.statLines, ()=>setState((){}));
+        case "5":
+          return WidgetFactory.createMutableStatsTable(currentGame.set5.statLines, ()=>setState((){}));
         default:
           return new Text("AN ERROR HAS OCCURRED");
       }
     }
-  }
-
-  void callback() {
-    setState(() { 
-    });
   }
 
   Widget _setSelectionDropdown() {
@@ -290,9 +269,12 @@ class _NewGamePageState extends State<NewGamePage> {
       currentGame.set5,
       new Set('all'),
     ];
-    for (Set s in gameSets) {
-      s.statLines = StatLines.buildFromRoster(globals.currentTeam.roster);
+    if (startupState == true) {
+      for (Set s in gameSets) {
+        s.statLines = StatLines.buildFromRoster(globals.currentTeam.roster);
+      }
     }
+    startupState = false;
     return DropdownButton<dynamic>(
       value: selectedSet,
       onChanged: (newValue) {
@@ -341,7 +323,7 @@ class _NewGamePageState extends State<NewGamePage> {
       new Column(crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _gameInformation(),
-        WidgetFactory.createMutablePassingTable(currentGame.userTeamStatlines, () => setState((){})),
+        _showSelectedSetForPassingStats(),
         new Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
       child: new RaisedButton(
@@ -352,6 +334,29 @@ class _NewGamePageState extends State<NewGamePage> {
       ],),
     ));
   }  
+
+  Widget _showSelectedSetForPassingStats() {
+    // return WidgetFactory.createMutableStatsTable(currentGame.userTeamStatlines, ()=>setState((){}));
+    if (selectedSet == "all") {
+      return WidgetFactory.createImmutablePassingTable(currentGame.getStatLinesForWholeGame(globals.currentTeam.roster));
+    }
+    else {
+      switch (selectedSet) {
+        case "1":
+          return WidgetFactory.createMutablePassingTable(currentGame.set1.statLines, ()=>setState((){}));
+        case "2":
+          return WidgetFactory.createMutablePassingTable(currentGame.set2.statLines, ()=>setState((){}));
+        case "3":
+          return WidgetFactory.createMutablePassingTable(currentGame.set3.statLines, ()=>setState((){}));
+        case "4":
+          return WidgetFactory.createMutablePassingTable(currentGame.set4.statLines, ()=>setState((){}));
+        case "5":
+          return WidgetFactory.createMutablePassingTable(currentGame.set5.statLines, ()=>setState((){}));
+        default:
+          return new Text("AN ERROR HAS OCCURRED");
+      }
+    }
+  }
 
   void endGame() {
     globals.currentTeam.gamesList.add(currentGame);

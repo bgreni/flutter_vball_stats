@@ -2,6 +2,11 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'Coach.g.dart';
 
+/// Implementation of a Coach object
+/// Used as a member of Team object, but related to the user object
+/// 
+/// Instance members:
+///   name: a String for the coaches name
 
 @JsonSerializable()
 class Coach {

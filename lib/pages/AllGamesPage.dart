@@ -1,12 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:vball_stats/pages/MyAppBar.dart';
-import 'package:vball_stats/pages/PlayerStatsPage.dart';
-import 'CreatePlayerPopup.dart';
-import 'package:vball_stats/entities/Team.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/entities/Game.dart';
 import 'package:vball_stats/globals.dart' as globals;
 

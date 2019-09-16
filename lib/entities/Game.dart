@@ -1,10 +1,18 @@
-import 'Team.dart';
+
 import 'Set.dart';
-import 'Player.dart';
 import 'StatLines.dart';
 import 'StatLine.dart';
+import 'Roster.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'Game.g.dart';
+
+/// Implementation of the Game object
+/// Stores all information relevant to a single game
+/// 
+/// Members:
+///   String userTeam: the name of the userTeam 
+///   String opposingTeam: the name of the team the user played in this game
+///   Set set1/2/3/..: a set object for each set in the game
 
 @JsonSerializable(explicitToJson: true)
 
@@ -17,21 +25,25 @@ class Game {
   Set set3;
   Set set4;
   Set set5;
+
+  // TODO does this need to be here anymore??
   StatLines userTeamStatlines;
 
-  Game({this.userTeam, this.opposingTeam, this.userTeamStatlines, this.gameDate}){
+  Game({this.userTeam, this.opposingTeam, this.userTeamStatlines, this.gameDate, this.set1, this.set2, this.set3, this.set4, this.set5}){
     userTeamStatlines == null ? userTeamStatlines = new StatLines() : null;
-    this.set1 = new Set('1');
-    this.set2 = new Set('2');
-    this.set3 = new Set('3');
-    this.set4 = new Set('4');
-    this.set5 = new Set('5');
+    this.set1 == null ? set1 = new Set('1') : null;
+    this.set2 == null ? set2 = new Set('2') : null;
+    this.set3 == null ? set3 = new Set('3') : null;
+    this.set4 == null ? set4 = new Set('4') : null;
+    this.set5 == null ? set5 = new Set('5') : null;
   }
 
+  // TODO finish this implementation
   //StatLine gameStatLineByPlayer(String playerName) {
 
   //}
 
+  /// returns a string for the month the game was played
   String monthToString(){
     switch(gameDate.month){
       case 1:
@@ -63,9 +75,10 @@ class Game {
       }
   }
 
-  StatLines getStatLinesForWholeGame() {
-    List<Set> setList = [set2, set3, set4, set5];
-    StatLines totals = set1.statLines;
+  /// get all players total StatLines for this game
+  StatLines getStatLinesForWholeGame(Roster roster) {
+    List<Set> setList = [set1, set2, set3, set4, set5];
+    StatLines totals = StatLines.buildFromRoster(roster);
     for (Set setX in setList) {
       for (StatLine statLine in totals.statLineList) {
         StatLine matchingStatLine = setX.statLines.statLineList.where((stl)
@@ -76,6 +89,8 @@ class Game {
     return totals;
   }
 
+
+  // json conversion definitions
   List<Map<String, dynamic>> listToJson(List<Game> games) {
     var gamesList = List<Map<String, dynamic>>();
     games.forEach((game) => gamesList.add(game.toJson()));
@@ -84,34 +99,5 @@ class Game {
 
   factory Game.fromJson(Map<String, dynamic> json) => _$GameFromJson(json);
   Map<String, dynamic> toJson() => _$GameToJson(this);
-
-  // Game fromJson(Map<String, dynamic> json) {
-  //   Game game = Game(
-  //     userTeam: json['userTeam'] as String,
-  //     opposingTeam: json['opposingTeam'] as String,
-  //     gameDate: json['gameDate'] as DateTime,
-  //   );
-
-  //   game.set1 = Set('1').fromJson(json['set1'].cast<String, dynamic>());
-  //   game.set2 = Set('2').fromJson(json['set2'].cast<String, dynamic>());
-  //   game.set3 = Set('3').fromJson(json['set3'].cast<String, dynamic>());
-  //   game.set4 = Set('4').fromJson(json['set4'].cast<String, dynamic>());
-  //   game.set5 = Set('5').fromJson(json['set5'].cast<String, dynamic>());
-  //   userTeamStatlines = StatLines().fromJson(json['players']);
-
-  //  return game;
-  // }
-
-  // Map<String, dynamic> toJson() => <String, dynamic>{
-  //       'userTeam': this.userTeam,
-  //       'opposingTeam': this.opposingTeam,
-  //       'gameDate': this.gameDate,
-  //       'set1': this.set1.toJson(),
-  //       'set2': this.set2.toJson(),
-  //       'set3': this.set3.toJson(),
-  //       'set4': this.set4.toJson(),
-  //       'set5': this.set5.toJson(), 
-  //       'players': userTeamStatlines.toJson(),
-  //     };
 }
 

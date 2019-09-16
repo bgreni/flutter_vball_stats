@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import "package:vball_stats/services/authentication.dart";
 import 'package:vball_stats/pages/root_page.dart';
 
-/* TODO: dependencies to add to IOS version
-    firebase auth
-    firestore*/
-
 void main() => runApp(VballStatsApp());
 
 class VballStatsApp extends StatelessWidget {

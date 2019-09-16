@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vball_stats/pages/MyAppBar.dart';
 import 'CreatePlayerPopup.dart';
-import 'package:vball_stats/entities/Team.dart';
-import 'package:vball_stats/entities/Roster.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/entities/Player.dart';
 import 'package:vball_stats/widgets/WidgetFactory.dart';
@@ -11,6 +8,7 @@ import 'package:vball_stats/globals.dart' as globals;
 enum StatsType {
   MAIN_STATS,
   PASSING_STATS,
+  GAME_AVERAGES,
 }
 
 class PlayerStatsPage extends StatefulWidget {
@@ -23,20 +21,31 @@ class _PlayersStatsPageState extends State<PlayerStatsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Player> playerList = globals.currentTeam.roster.playerList;
-    playerList.sort((a,b) => int.parse(a.playerNumber).compareTo(int.parse(b.playerNumber)));
+    return new Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        _modeSelectionDropdown(),
+        _pickPageMode(),
+      ],
+    );
+    
+  }
 
+  Widget _pickPageMode() {
     switch (statsType) {
       case StatsType.MAIN_STATS:
-        return _makeMainStatsTable(playerList);
+        return _makeMainStatsTable();
         break;
       case StatsType.PASSING_STATS:
-        return _makePassingStatsTable(playerList);
+        return _makePassingStatsTable();
+        break;
+      case StatsType.GAME_AVERAGES:
+        return _makeGameAveragesTable();
         break;
     }
   }
 
-  Widget _makePassingStatsTable(List<Player> playerList) {
+  Widget _makePassingStatsTable() {
   
     return new SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -48,35 +57,56 @@ class _PlayersStatsPageState extends State<PlayerStatsPage> {
             child: new Text("Create new player"),
             onPressed: _makePlayerPopup,
           ),
-          new RaisedButton(
-              child: new Text("Switch to Main Stats"),
-              onPressed: () {
-                statsType = StatsType.MAIN_STATS;
-                setState(() {});
-              })
         ],
       ),
     );
   }
 
-  Widget _makeMainStatsTable(List<Player> playerList) {
+  Widget _makeMainStatsTable() {
     
     return new SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child:
             new Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           WidgetFactory.createImmutableStatsTable(globals.currentTeam.getPlayerTotals()),
-          new RaisedButton(
+          _createNewPlayerButton(),
+        ]));
+  }
+
+  Widget _modeSelectionDropdown() {
+    return DropdownButton<dynamic>(
+      value: statsType,
+      onChanged: (newMode) {
+        setState(() {
+          statsType = newMode;
+        });
+      },
+      items: StatsType.values
+        .map<DropdownMenuItem<dynamic>>((currentMode) {
+          return DropdownMenuItem<dynamic>(
+            value: currentMode,
+            child: new Text(currentMode.toString().split(".").last.split("_").join(" ").toLowerCase()),
+          );
+        }).toList(),
+    );
+  }
+
+  Widget _makeGameAveragesTable() {
+    return new SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: 
+        new Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+          WidgetFactory.createGameAveragesTable(globals.currentTeam),
+          _createNewPlayerButton(),
+        ],),
+    );
+  }
+
+  Widget _createNewPlayerButton() {
+    return new RaisedButton(
             child: new Text("Create new player"),
             onPressed: _makePlayerPopup,
-          ),
-          new RaisedButton(
-              child: new Text("Switch to Passing"),
-              onPressed: () {
-                statsType = StatsType.PASSING_STATS;
-                setState(() {});
-              })
-        ]));
+          );
   }
 
   void _makePlayerPopup() {

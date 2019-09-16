@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vball_stats/entities/Team.dart';
-import 'package:vball_stats/entities/Coach.dart';
-import 'package:vball_stats/entities/Player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vball_stats/globals.dart' as globals;
 

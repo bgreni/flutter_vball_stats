@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:vball_stats/entities/Team.dart';
 import 'package:flutter/material.dart';
 import 'package:vball_stats/globals.dart' as globals;
-import 'package:vball_stats/services/FirestoreHelper.dart';
 
 enum PageState{
   WAITING,
